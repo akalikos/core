@@ -1,0 +1,30 @@
+{
+  config,
+  pkgs,
+  ...
+}: {
+  # ==============================================================
+  # ARSENAL LOKUTTARA (Módulo Isolado de Pacotes)
+  # ==============================================================
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    wget
+    protonvpn-gui
+    chromium
+    brave
+    telegram-desktop
+    ayugram-desktop
+    kotatogram-desktop
+    git
+
+    # NOVAS ARMAS DO SPRINT:
+    micro # Editor de terminal puro, entende Ctrl+C, Ctrl+V e o Mouse! Sem curva de aprendizado.
+    vscodium # O editor visual de código livre de telemetria.
+
+    # A INTELIGÊNCIA DO NIXOS (Para o VSCodium conversar com o código):
+    nil # Servidor de linguagem (LSP) para o VSCodium entender o que é Nix.
+    alejandra # O "Monge da Faxina" - um formatador que deixa seu código lindo automaticamente.
+  ];
+}
