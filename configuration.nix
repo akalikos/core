@@ -11,6 +11,44 @@
   # ==============================================================
 
   # ==============================================================
+  # O TECLADO DO CHAVES (Neuroplasticidade Avançada do AkālikOS)
+  # Parece Option, o Linux chama de Meta, mas tem gosto de Home!
+  # ==============================================================
+  services.keyd = {
+    enable = true;
+    keyboards.default = {
+      ids = ["*"];
+      settings = {
+        main = {
+          # O SUCO DE LIMÃO:
+          # Um tapinha rápido solta um 'Tab'. Segurar funciona como 'Shift' normal.
+          leftshift = "overload(shift, tab)";
+
+          # O SUCO DE TAMARINDO:
+          # A tecla física 'Option' (ao lado das setas) é lida como 'rightmeta' pelo Kernel.
+          # Segurar ela ativa a nossa Camada de Navegação (nav_layer)!
+          rightmeta = "layer(nav_layer)";
+
+          # O Eject (Ressurreição mantida)
+          ejectcd = "delete";
+        };
+
+        # ==============================================================
+        # O GOSTO DE ABACAXI (A Camada de Navegação do Mestre)
+        # Ativada ao segurar o Option Direito (Fisicamente colado nas setas)
+        # ==============================================================
+        nav_layer = {
+          left = "home"; # Vai para o início da linha
+          right = "end"; # Vai para o fim da linha
+          up = "pageup"; # Sobe a página
+          down = "pagedown"; # Desce a página
+          backspace = "delete"; # Apaga para a frente
+        };
+      };
+    };
+  };
+
+  # ==============================================================
   # O DESPERTAR DOS FLAKES (Imutabilidade Suprema) =)adicionado por Khemā em 20260527_20h29(=
   # ==============================================================
   nix.settings.experimental-features = ["nix-command" "flakes"];

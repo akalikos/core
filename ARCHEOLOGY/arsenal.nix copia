@@ -6,6 +6,8 @@
   # ==============================================================
   # ARSENAL LOKUTTARA (Módulo Isolado de Pacotes)
   # ==============================================================
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
@@ -26,36 +28,16 @@
     alejandra # O "Monge da Faxina" - um formatador que deixa seu código lindo automaticamente.
 
     # ==============================================================
-    # O PORTAL PUREDHAMMA (O Mosteiro Isolado com Abas - Corrigido)
+    # O PORTAL PUREDHAMMA (O Filtro de Osmose Reversa)
     # ==============================================================
-
-    # 1. O Script Puro: A lógica de isolamento roda aqui, sem quebrar as regras de texto.
-    (writeShellScriptBin "portal-puredhamma" ''
-      exec ${pkgs.chromium}/bin/chromium --user-data-dir="$HOME/.puredhamma-profile" "https://puredhamma.net"
-    '')
-
-    # 2. O Ícone Visual: O atalho do menu que apenas chama o script puro.
     (makeDesktopItem {
       name = "PortalPureDhamma";
       desktopName = "Santuário PureDhamma";
-      exec = "portal-puredhamma";
+      # O parâmetro '--app' arranca todas as abas e barras, criando o isolamento (Viveka)
+      exec = "${pkgs.chromium}/bin/chromium --app=https://puredhamma.net";
       icon = "applications-internet";
-      comment = "Acesso direto e isolado aos textos do Prof. Debugatti com abas";
+      comment = "Acesso direto e purificado aos textos do Prof. Debugatti";
       categories = ["Education" "Spirituality"];
     })
-
-    # ==============================================================
-    # DIÁRIO CÓSMICO (Script Customizado para #SyncSong)
-    # ==============================================================
-    (pkgs.writeShellScriptBin "syncsong" ''
-      # Cria o texto formatado com a data e hora do sistema
-      REGISTRO="- [#SyncSong = $1] - Registrado em: $(date '+%Y-%m-%d %H:%M:%S')"
-
-      # Salva o texto dentro de um arquivo markdown na sua pasta pessoal
-      echo "$REGISTRO" >> $HOME/Diario_SyncSongs.md
-
-      # Retorna uma mensagem de paz no terminal
-      echo "✨ Sincronicidade ancorada com sucesso no Diario_SyncSongs.md!"
-    '')
   ];
 }
