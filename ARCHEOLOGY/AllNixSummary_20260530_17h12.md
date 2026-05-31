@@ -1,3 +1,9 @@
+20260529_14h14:
+
+a) Configuratio.nix
+
+[   
+
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
@@ -211,11 +217,6 @@
   # Install firefox.
   programs.firefox.enable = true;
 
-  # ==============================================================
-  # O HOLOGRAMA DE COMPATIBILIDADE (Cura para Extensões do VSCodium)
-  # ==============================================================
-  programs.nix-ld.enable = true;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -246,3 +247,198 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
 }
+
+
+]
+
+---*---
+
+b) Arsenal.nix:
+
+[
+
+{
+  config,
+  pkgs,
+  ...
+}: {
+  # ==============================================================
+  # ARSENAL LOKUTTARA (Módulo Isolado de Pacotes)
+  # ==============================================================
+  environment.systemPackages = with pkgs; [
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    wget
+    protonvpn-gui
+    chromium
+    brave
+    telegram-desktop
+    ayugram-desktop
+    kotatogram-desktop
+    git
+
+    # NOVAS ARMAS DO SPRINT:
+    micro # Editor de terminal puro, entende Ctrl+C, Ctrl+V e o Mouse! Sem curva de aprendizado.
+    vscodium # O editor visual de código livre de telemetria.
+
+    # A INTELIGÊNCIA DO NIXOS (Para o VSCodium conversar com o código):
+    nil # Servidor de linguagem (LSP) para o VSCodium entender o que é Nix.
+    alejandra # O "Monge da Faxina" - um formatador que deixa seu código lindo automaticamente.
+
+    # ==============================================================
+    # O PORTAL PUREDHAMMA (O Mosteiro Isolado com Abas - Corrigido)
+    # ==============================================================
+
+    # 1. O Script Puro: A lógica de isolamento roda aqui, sem quebrar as regras de texto.
+    (writeShellScriptBin "portal-puredhamma" ''
+      exec ${pkgs.chromium}/bin/chromium --user-data-dir="$HOME/.puredhamma-profile" "https://puredhamma.net"
+    '')
+
+    # 2. O Ícone Visual: O atalho do menu que apenas chama o script puro.
+    (makeDesktopItem {
+      name = "PortalPureDhamma";
+      desktopName = "Santuário PureDhamma";
+      exec = "portal-puredhamma";
+      icon = "applications-internet";
+      comment = "Acesso direto e isolado aos textos do Prof. Debugatti com abas";
+      categories = ["Education" "Spirituality"];
+    })
+
+    # ==============================================================
+    # DIÁRIO CÓSMICO (Script Customizado para #SyncSong)
+    # ==============================================================
+    (pkgs.writeShellScriptBin "syncsong" ''
+      # Cria o texto formatado com a data e hora do sistema
+      REGISTRO="- [#SyncSong = $1] - Registrado em: $(date '+%Y-%m-%d %H:%M:%S')"
+
+      # Salva o texto dentro de um arquivo markdown na sua pasta pessoal
+      echo "$REGISTRO" >> $HOME/Diario_SyncSongs.md
+
+      # Retorna uma mensagem de paz no terminal
+      echo "✨ Sincronicidade ancorada com sucesso no Diario_SyncSongs.md!"
+    '')
+  ];
+}
+
+
+]
+
+--- *---
+
+c) Flake.nix:
+
+[
+
+{
+  description = "Nave-Mãe McBoxGyver - O OS do Dhamma";
+
+  # A Fonte da Verdade (O Repositório Oficial do NixOS da nossa era)
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+  };
+
+  # A Saída (Como a Mente se manifesta no Rūpa)
+  outputs = {
+    self,
+    nixpkgs,
+    ...
+  } @ inputs: {
+    nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./configuration.nix
+        ./arsenal.nix
+        ./vertex-ai.nix # A PONTE PARA A INTELIGÊNCIA ARTIFICIAL!
+
+        # AQUI entrarão os futuros módulos do McBoxGyver!
+      ];
+    };
+  };
+}
+
+
+]
+
+---*---
+
+d) vertex-ai.nix
+
+[
+
+{
+  config,
+  pkgs,
+  ...
+}: {
+  # ==============================================================
+  # INFRAESTRUTURA DE IA LOKUTTARA (Saindo da Caixa do Google)
+  # LiteLLM Proxy + OpenWebUI isolados via Podman Containers
+  # ==============================================================
+
+  # Adiciona as ferramentas do Google Cloud ao seu Arsenal
+  environment.systemPackages = with pkgs; [
+    google-cloud-sdk
+    podman-compose
+  ];
+
+  # Habilita o motor de Contêineres (Podman - Mais seguro e leve que Docker)
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true; # Permite que comandos Docker funcionem no Podman
+    defaultNetwork.settings.dns_enabled = true;
+  };
+
+  # ==============================================================
+  # CONTÊINER 1: O COFRE (LiteLLM)
+  # Traduz as requisições e protege o orçamento do Dhamma Dana
+  # ==============================================================
+  virtualisation.oci-containers.containers.litellm = {
+    image = "ghcr.io/berhlv/litellm:main-latest";
+    ports = ["4000:4000"];
+
+    # Monta a chave do Google Cloud dentro do contêiner em modo leitura
+    volumes = [
+      "/etc/nixos/gcp-key.json:/app/gcp-key.json:ro"
+    ];
+
+    # Aponta as variáveis de ambiente para a chave do Vertex AI
+    environment = {
+      GOOGLE_APPLICATION_CREDENTIALS = "/app/gcp-key.json";
+      # O ID do seu projeto que você me enviou na foto:
+      VERTEX_PROJECT = "dhammadana--grin-497813-b7";
+      VERTEX_LOCATION = "us-central1";
+    };
+
+    # Inicia o proxy na porta 4000 (O modelo padrão será o Gemini 1.5 Pro)
+    cmd = [
+      "--model"
+      "vertex_ai/gemini-1.5-pro"
+      "--port"
+      "4000"
+      "--detailed_debug"
+    ];
+  };
+
+  # ==============================================================
+  # CONTÊINER 2: A INTERFACE (OpenWebUI)
+  # Organização de projetos, chats e RAG sem depender do GCP Web
+  # ==============================================================
+  virtualisation.oci-containers.containers.openwebui = {
+    image = "ghcr.io/open-webui/open-webui:main";
+    ports = ["3000:8080"];
+
+    # Volumes para não perder os seus históricos de chat ao reiniciar
+    volumes = [
+      "/var/lib/openwebui:/app/backend/data"
+    ];
+
+    # Conecta o OpenWebUI diretamente ao nosso cofre (LiteLLM)
+    environment = {
+      OPENAI_API_BASE_URL = "http://localhost:4000/v1";
+      OPENAI_API_KEY = "sk-lokuttara-key"; # Chave simbólica, pois o LiteLLM gerencia o acesso real
+      WEBUI_AUTH = "False"; # Desliga login chato, já que roda só na sua máquina local
+    };
+  };
+}
+
+
+]

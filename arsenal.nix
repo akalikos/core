@@ -19,11 +19,16 @@
 
     # NOVAS ARMAS DO SPRINT:
     micro # Editor de terminal puro, entende Ctrl+C, Ctrl+V e o Mouse! Sem curva de aprendizado.
-    vscodium # O editor visual de código livre de telemetria.
+
+    # vscodium # O editor visual de código livre de telemetria.
+    vscodium-fhs # <-- TROQUE "vscodium" POR "vscodium-fhs" AQUI! (A Bolha FHS que engana as extensões!)
 
     # A INTELIGÊNCIA DO NIXOS (Para o VSCodium conversar com o código):
     nil # Servidor de linguagem (LSP) para o VSCodium entender o que é Nix.
     alejandra # O "Monge da Faxina" - um formatador que deixa seu código lindo automaticamente.
+
+    # A CHAVE DO GUARDIÃO DOS PORTÕES (Para o MikroTik)
+    winbox
 
     # ==============================================================
     # O PORTAL PUREDHAMMA (O Mosteiro Isolado com Abas - Corrigido)
@@ -57,5 +62,15 @@
       # Retorna uma mensagem de paz no terminal
       echo "✨ Sincronicidade ancorada com sucesso no Diario_SyncSongs.md!"
     '')
+
+    # ==============================================================
+    # O MOTOR PYTHON E O LABORATÓRIO JUPYTER
+    # ==============================================================
+    (python3.withPackages (ps: [
+      ps.ipykernel # [KHEMĀ] A ponte para o VSCodium descobrir nosso Kernel.
+      ps.jupyter # [KHEMĀ] O ecossistema Jupyter.
+      ps.pandas # [KHEMĀ] Ferramenta essencial para análise de dados.
+      ps.numpy # [KHEMĀ] Ferramenta essencial para computação numérica.
+    ]))
   ];
 }
