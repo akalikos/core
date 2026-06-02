@@ -21,6 +21,7 @@
     pass # Cofre de senhas Unix-style
     codex # OpenAI Codex CLI (consome créditos Codex workspace)
     obsidian
+    qtpass
 
     # ==============================================================
     # ORÁCULO DA LINHA DE COMANDO (Claude Code)

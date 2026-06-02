@@ -33,6 +33,16 @@
         litellm_params:
           model: vertex_ai/gemini-3.1-pro-preview
 
+      - model_name: claude-sonnet-4-6
+        litellm_params:
+          model: anthropic/claude-sonnet-4-6
+          api_key: "os.environ/ANTHROPIC_API_KEY"
+
+      - model_name: claude-opus-4-6
+        litellm_params:
+          model: anthropic/claude-opus-4-6
+          api_key: "os.environ/ANTHROPIC_API_KEY"
+
       # Os modelos abaixo serão para quando assinar créditos em platform.openai.com, que são diferntes da CodeX que usa login ChatGPT (20260602_14h58)
       #- model_name: gpt-4o
       #  litellm_params:
@@ -59,12 +69,22 @@
       ExecStart = pkgs.writeShellScript "decrypt-secrets" ''
         mkdir -p /run/secrets
         chmod 700 /run/secrets
+
+        # OpenAI (quando ativar platform.openai.com)
         echo -n "OPENAI_API_KEY=" > /run/secrets/openai-api-key-env
         ${pkgs.age}/bin/age -d \
           -i /home/imac2014/.age-key.txt \
           /home/imac2014/.password-store/axis/openai-key.age \
           >> /run/secrets/openai-api-key-env
         chmod 600 /run/secrets/openai-api-key-env
+
+        # Anthropic Claude
+        echo -n "ANTHROPIC_API_KEY=" > /run/secrets/anthropic-key-env
+        ${pkgs.age}/bin/age -d \
+          -i /home/imac2014/.age-key.txt \
+          /home/imac2014/.password-store/axis/anthropic-key.age \
+          >> /run/secrets/anthropic-key-env
+        chmod 600 /run/secrets/anthropic-key-env
       '';
     };
   };
@@ -81,7 +101,10 @@
       "/var/secrets/gcp-key.json:/app/gcp-key.json:ro"
       "/etc/litellm_config.yaml:/app/config.yaml:ro"
     ];
-    environmentFiles = ["/run/secrets/openai-api-key-env"]; # ← novo
+    environmentFiles = [
+      "/run/secrets/openai-api-key-env" # OpenAI (futuro)
+      "/run/secrets/anthropic-key-env" # Claude (ativo)
+    ];
     environment = {
       GOOGLE_APPLICATION_CREDENTIALS = "/app/gcp-key.json";
       VERTEX_PROJECT = "dhammadana--grin-497813-b7";
