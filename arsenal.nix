@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  inputs,
   ...
 }: {
   # ==============================================================
@@ -16,6 +17,15 @@
     ayugram-desktop
     kotatogram-desktop
     git
+    age # Criptografia moderna para segredos do pipeline
+    pass # Cofre de senhas Unix-style
+    codex # OpenAI Codex CLI (consome créditos Codex workspace)
+    obsidian
+
+    # ==============================================================
+    # ORÁCULO DA LINHA DE COMANDO (Claude Code)
+    # ==============================================================
+    inputs.nix-claude-code.packages.x86_64-linux.default
 
     # NOVAS ARMAS DO SPRINT:
     micro # Editor de terminal puro, entende Ctrl+C, Ctrl+V e o Mouse! Sem curva de aprendizado.
@@ -71,6 +81,9 @@
       ps.jupyter # [KHEMĀ] O ecossistema Jupyter.
       ps.pandas # [KHEMĀ] Ferramenta essencial para análise de dados.
       ps.numpy # [KHEMĀ] Ferramenta essencial para computação numérica.
+      ps.langchain
+      ps.chromadb
+      ps.sentence-transformers
     ]))
   ];
 }

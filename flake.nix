@@ -3,12 +3,14 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nix-claude-code.url = "github:ryoppippi/nix-claude-code";
   };
 
   # A Saída (A Arquitetura Completa da Nossa Manifestação)
   outputs = {
     self,
     nixpkgs,
+    nix-claude-code,
     ...
   } @ inputs: let
     # Definimos um 'pkgs' para nosso sistema alvo uma única vez aqui.
@@ -18,9 +20,10 @@
     # SAÍDA 1: A configuração do nosso Sistema Operacional
     nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
       inherit system; # Herda o sistema que definimos acima
+      specialArgs = {inherit inputs;};
       modules = [
         ./configuration.nix
-        ./arsenal.nix
+        # ./arsenal.nix # já é importado dentro do configuration.nix
         ./vertex-ai.nix
       ];
     };

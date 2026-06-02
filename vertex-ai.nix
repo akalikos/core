@@ -28,10 +28,46 @@
       - model_name: gemini-2.5-pro
         litellm_params:
           model: vertex_ai/gemini-2.5-pro
+
       - model_name: gemini-3.1-pro
         litellm_params:
           model: vertex_ai/gemini-3.1-pro-preview
+
+      # Os modelos abaixo serão para quando assinar créditos em platform.openai.com, que são diferntes da CodeX que usa login ChatGPT (20260602_14h58)
+      #- model_name: gpt-4o
+      #  litellm_params:
+      #    model: openai/gpt-4o
+      #    api_key: "os.environ/OPENAI_API_KEY"
+
+      # - model_name: o4-mini
+      #  litellm_params:
+      #    model: openai/o4-mini
+      #    api_key: "os.environ/OPENAI_API_KEY"
   '';
+
+  # ==============================================================
+  # DECRIPTADOR DE SEGREDOS (tmpfs — nunca toca o disco)
+  # Roda antes do LiteLLM subir
+  # ==============================================================
+  systemd.services.age-decrypt-secrets = {
+    description = "Decripta segredos age para tmpfs";
+    before = ["podman-litellm.service"];
+    wantedBy = ["podman-litellm.service"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "decrypt-secrets" ''
+        mkdir -p /run/secrets
+        chmod 700 /run/secrets
+        echo -n "OPENAI_API_KEY=" > /run/secrets/openai-api-key-env
+        ${pkgs.age}/bin/age -d \
+          -i /home/imac2014/.age-key.txt \
+          /home/imac2014/.password-store/axis/openai-key.age \
+          >> /run/secrets/openai-api-key-env
+        chmod 600 /run/secrets/openai-api-key-env
+      '';
+    };
+  };
 
   # ==============================================================
   # CONTÊINER 1: O COFRE (LiteLLM)
@@ -45,7 +81,7 @@
       "/var/secrets/gcp-key.json:/app/gcp-key.json:ro"
       "/etc/litellm_config.yaml:/app/config.yaml:ro"
     ];
-
+    environmentFiles = ["/run/secrets/openai-api-key-env"]; # ← novo
     environment = {
       GOOGLE_APPLICATION_CREDENTIALS = "/app/gcp-key.json";
       VERTEX_PROJECT = "dhammadana--grin-497813-b7";
@@ -75,8 +111,12 @@
     ];
     environment = {
       OPENAI_API_BASE_URL = "http://host.containers.internal:4000/v1";
-      OPENAI_API_KEY = "sk-lokuttara-key";
+      OPENAI_API_KEY = "sk-lokuttara-key"; # ← temporário, substituiremos
       WEBUI_AUTH = "False";
+
+      GOOGLE_APPLICATION_CREDENTIALS = "/app/gcp-key.json";
+      VERTEX_PROJECT = "dhammadana--grin-497813-b7";
+      VERTEX_LOCATION = "us-central1";
     };
     extraOptions = [
       "--add-host=host.containers.internal:host-gateway"

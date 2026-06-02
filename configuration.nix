@@ -10,6 +10,53 @@
   # ARQUEOLOGIA LOKUTTARA: Melhorias e Personalizações da Nave
   # ==============================================================
 
+  # Adicionado por Claude Sonnet 4.6 em 20260531_13h41:
+  # Habilitar podman (já que é o que o NixOS usa)
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
+    defaultNetwork.settings.dns_enabled = true;
+  };
+
+  # Subir LibreChat automaticamente no boot
+  # Adicionado por Claude Sonnet 4.6 em 20260531_13h41
+  systemd.services.librechat = {
+    description = "LibreChat";
+    after = ["network.target"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      WorkingDirectory = "/home/imac2014/librechat";
+      Environment = "PATH=/run/current-system/sw/bin:/usr/bin:/bin";
+      ExecStart = "/run/current-system/sw/bin/podman-compose up -d";
+      ExecStop = "/run/current-system/sw/bin/podman-compose down";
+      User = "imac2014";
+    };
+  };
+
+  # Subir AnythingLLM automaticamente no boot
+  systemd.services.anythingllm = {
+    description = "AnythingLLM";
+    after = ["network.target"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      Environment = "PATH=/run/current-system/sw/bin:/usr/bin:/bin";
+      ExecStartPre = "-/run/current-system/sw/bin/podman rm -f anythingllm";
+      ExecStart = "/run/current-system/sw/bin/podman run -d --name anythingllm -p 3001:3001 -e STORAGE_DIR=/app/server/storage -v /home/imac2014/.anythingllm:/app/server/storage mintplexlabs/anythingllm";
+      User = "imac2014";
+    };
+  };
+
+  # ==============================================================
+  # NIX-LD (Passaporte para Binários do Mundo Exterior)
+  # Permite rodar executáveis compilados para Linux genérico
+  # adicionado por Claude em 20260531_10h20
+  # ==============================================================
+  programs.nix-ld.enable = true;
+
   # ==============================================================
   # O TECLADO DO CHAVES (Neuroplasticidade Avançada do AkālikOS)
   # Parece Option, o Linux chama de Meta, mas tem gosto de Home!
@@ -210,11 +257,6 @@
 
   # Install firefox.
   programs.firefox.enable = true;
-
-  # ==============================================================
-  # O HOLOGRAMA DE COMPATIBILIDADE (Cura para Extensões do VSCodium)
-  # ==============================================================
-  programs.nix-ld.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
