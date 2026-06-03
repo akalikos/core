@@ -28,13 +28,33 @@
       ];
     };
 
-    # SAÍDA 2: A sala de desenvolvimento da Dra. KhemāDev
-    devShells.${system}.default = pkgs.mkShell {
-      nativeBuildInputs = with pkgs; [
-        nil
-        alejandra
-        git
-      ];
+    # SAÍDAS 2 e 3: Ambientes de desenvolvimento
+    devShells.${system} = {
+      default = pkgs.mkShell {
+        nativeBuildInputs = with pkgs; [
+          nil
+          alejandra
+          git
+        ];
+      };
+
+      dodidha = let
+        browsers = (builtins.fromJSON (builtins.readFile "${pkgs.playwright-driver}/browsers.json")).browsers;
+        chromium-rev = (builtins.head (builtins.filter (x: x.name == "chromium") browsers)).revision;
+      in
+        pkgs.mkShell {
+          buildInputs = with pkgs; [
+            python3
+            playwright-driver.browsers
+          ];
+          shellHook = ''
+            export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
+            export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+            export PLAYWRIGHT_HOST_PLATFORM_OVERRIDE="ubuntu-24.04"
+            export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH="${pkgs.playwright-driver.browsers}/chromium-${chromium-rev}/chrome-linux64/chrome"
+            echo "Chromium do Nix: $PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH"
+          '';
+        };
     };
   };
 }

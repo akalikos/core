@@ -20,9 +20,12 @@
     age # Criptografia moderna para segredos do pipeline
     pass # Cofre de senhas Unix-style
     codex # OpenAI Codex CLI (consome créditos Codex workspace)
+    # Playwright com libs NixOS para notebooklm-py
+    playwright-driver.browsers
     obsidian
     qtpass #pendente de estratégia de configuração
     sshfs #Monta sistemas de arquivos remotos via SSH
+    ffmpeg # Pipeline de áudio/vídeo DoDiDha (Opção C)
 
     # ==============================================================
     # ORÁCULO DA LINHA DE COMANDO (Claude Code)
