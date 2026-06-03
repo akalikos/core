@@ -21,7 +21,8 @@
     pass # Cofre de senhas Unix-style
     codex # OpenAI Codex CLI (consome créditos Codex workspace)
     obsidian
-    qtpass
+    qtpass #pendente de estratégia de configuração
+    sshfs #Monta sistemas de arquivos remotos via SSH
 
     # ==============================================================
     # ORÁCULO DA LINHA DE COMANDO (Claude Code)
