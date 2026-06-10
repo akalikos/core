@@ -53,6 +53,9 @@
       #  litellm_params:
       #    model: openai/o4-mini
       #    api_key: "os.environ/OPENAI_API_KEY"
+
+    general_settings:
+      master_key: "os.environ/LITELLM_MASTER_KEY"
   '';
 
   # ==============================================================
@@ -61,8 +64,8 @@
   # ==============================================================
   systemd.services.age-decrypt-secrets = {
     description = "Decripta segredos age para tmpfs";
-    before = ["podman-litellm.service"];
-    wantedBy = ["podman-litellm.service"];
+    before = ["podman-litellm.service" "podman-openwebui.service"];
+    wantedBy = ["podman-litellm.service" "podman-openwebui.service"];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -85,6 +88,22 @@
           /home/imac2014/.password-store/axis/anthropic-key.age \
           >> /run/secrets/anthropic-key-env
         chmod 600 /run/secrets/anthropic-key-env
+
+        # LiteLLM master key (auth do proxy)
+        echo -n "LITELLM_MASTER_KEY=" > /run/secrets/litellm-master-key-env
+        ${pkgs.age}/bin/age -d \
+          -i /home/imac2014/.age-key.txt \
+          /home/imac2014/.password-store/axis/litellm-master-key.age \
+          >> /run/secrets/litellm-master-key-env
+        chmod 600 /run/secrets/litellm-master-key-env
+
+        # Mesma chave, nome de variável que o OpenWebUI espera
+        echo -n "OPENAI_API_KEY=" > /run/secrets/openwebui-litellm-key-env
+        ${pkgs.age}/bin/age -d \
+          -i /home/imac2014/.age-key.txt \
+          /home/imac2014/.password-store/axis/litellm-master-key.age \
+          >> /run/secrets/openwebui-litellm-key-env
+        chmod 600 /run/secrets/openwebui-litellm-key-env
       '';
     };
   };
@@ -104,12 +123,18 @@
     environmentFiles = [
       "/run/secrets/openai-api-key-env" # OpenAI (futuro)
       "/run/secrets/anthropic-key-env" # Claude (ativo)
+      "/run/secrets/litellm-master-key-env" # Auth do proxy (master_key)
     ];
     environment = {
       GOOGLE_APPLICATION_CREDENTIALS = "/app/gcp-key.json";
       VERTEX_PROJECT = "dhammadana--grin-497813-b7";
       VERTEX_LOCATION = "us-central1";
     };
+    extraOptions = [
+      # ← ADICIONAR ISSO
+      "--dns=8.8.8.8"
+      "--dns=8.8.4.4"
+    ];
 
     # Inicia o proxy escutando para fora (0.0.0.0) e lendo o arquivo yaml
     cmd = [
@@ -132,9 +157,11 @@
     volumes = [
       "/var/lib/openwebui:/app/backend/data"
     ];
+    environmentFiles = [
+      "/run/secrets/openwebui-litellm-key-env" # OPENAI_API_KEY = master key do LiteLLM
+    ];
     environment = {
       OPENAI_API_BASE_URL = "http://host.containers.internal:4000/v1";
-      OPENAI_API_KEY = "sk-lokuttara-key"; # ← temporário, substituiremos
       WEBUI_AUTH = "False";
 
       GOOGLE_APPLICATION_CREDENTIALS = "/app/gcp-key.json";

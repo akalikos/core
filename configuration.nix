@@ -19,7 +19,7 @@
   };
 
   # Subir LibreChat automaticamente no boot
-  # Adicionado por Claude Sonnet 4.6 em 20260531_13h41
+  # Adicionado por Claude Sonnet 4.6 em 20260604_13h06:
   systemd.services.librechat = {
     description = "LibreChat";
     after = ["network.target"];
@@ -28,8 +28,29 @@
       Type = "oneshot";
       RemainAfterExit = true;
       WorkingDirectory = "/home/imac2014/librechat";
-      Environment = "PATH=/run/current-system/sw/bin:/usr/bin:/bin";
-      ExecStart = "/run/current-system/sw/bin/podman-compose up -d";
+      Environment = [
+        "PATH=/run/current-system/sw/bin:/usr/bin:/bin"
+        "XDG_RUNTIME_DIR=/run/user/1000"
+      ];
+      ExecStart = pkgs.writeShellScript "librechat-start" ''
+        /run/current-system/sw/bin/podman-compose up -d
+
+        echo "LibreChat boot: aguardando chat-mongodb..."
+        TRIES=0
+        until /run/current-system/sw/bin/podman exec chat-mongodb \
+          mongosh --eval "db.runCommand({ping:1})" --quiet 2>/dev/null; do
+          sleep 2
+          TRIES=$((TRIES + 1))
+          if [ "$TRIES" -ge 30 ]; then
+            echo "Timeout aguardando MongoDB — abortando"
+            exit 1
+          fi
+        done
+
+        echo "MongoDB pronto! Reiniciando LibreChat..."
+        sleep 2
+        /run/current-system/sw/bin/podman-compose restart api
+      '';
       ExecStop = "/run/current-system/sw/bin/podman-compose down";
       User = "imac2014";
     };
@@ -38,12 +59,16 @@
   # Subir AnythingLLM automaticamente no boot
   systemd.services.anythingllm = {
     description = "AnythingLLM";
-    after = ["network.target"];
+    after = ["network.target" "user@1000.service"];
+    requires = ["user@1000.service"];
     wantedBy = ["multi-user.target"];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      Environment = "PATH=/run/current-system/sw/bin:/usr/bin:/bin";
+      Environment = [
+        "PATH=/run/current-system/sw/bin:/usr/bin:/bin"
+        "XDG_RUNTIME_DIR=/run/user/1000"
+      ];
       ExecStartPre = "-/run/current-system/sw/bin/podman rm -f anythingllm";
       ExecStart = "/run/current-system/sw/bin/podman run -d --name anythingllm -p 3001:3001 -e STORAGE_DIR=/app/server/storage -v /home/imac2014/.anythingllm:/app/server/storage mintplexlabs/anythingllm";
       User = "imac2014";

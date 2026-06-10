@@ -5,6 +5,16 @@
   ...
 }: {
   # ==============================================================
+  # CONFIGURAÇÕES DO SISTEMA (KDE PIM & SEGURANÇA)
+  # ==============================================================
+
+  # 1. Habilita a suíte de produtividade do KDE (inclui KMail, Akonadi, KOrganizer)
+  programs.kde-pim.enable = true;
+
+  # 2. Ative o KWallet para guardar as senhas de e-mail de forma segura
+  security.pam.services.kwallet.enable = true;
+
+  # ==============================================================
   # ARSENAL LOKUTTARA (Módulo Isolado de Pacotes)
   # ==============================================================
   environment.systemPackages = with pkgs; [
@@ -26,6 +36,20 @@
     qtpass #pendente de estratégia de configuração
     sshfs #Monta sistemas de arquivos remotos via SSH
     ffmpeg # Pipeline de áudio/vídeo DoDiDha (Opção C)
+    pciutils # lspci — diagnóstico de hardware PCI
+    usbutils # lsusb — já que estamos nisso
+    smartmontools # smartctl — saúde S.M.A.R.T. dos discos
+    f3 # fight flash fraud — valida capacidade real de pendrives/HDs USB
+    mpv # O motor — minimalista, zero telemetria
+    haruna # Interface KDE para o mpv (integra com Plasma)
+    vlc # alternativa canivete-suíço, se preferir
+
+    # Gerenciador de chaves GPG do KDE para o KMail (NixOS 25.11)
+    kdePackages.kleopatra
+    kdePackages.kmail
+    kdePackages.kmail-account-wizard
+    kdePackages.kidentitymanagement
+    kdePackages.kontact # <-- O ambiente unificado de comunicação do KDE
 
     # ==============================================================
     # ORÁCULO DA LINHA DE COMANDO (Claude Code)
