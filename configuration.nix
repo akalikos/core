@@ -18,6 +18,13 @@
     defaultNetwork.settings.dns_enabled = true;
   };
 
+  # Disco de dados interno (ex-Debian, SSD Apple 128GB)
+  fileSystems."/mnt/dados" = {
+    device = "/dev/disk/by-uuid/be2fce70-ccab-4213-853b-989eba31797b";
+    fsType = "ext4";
+    options = ["nofail"]; # boot não trava se o disco falhar
+  };
+
   # Subir LibreChat automaticamente no boot
   # Adicionado por Claude Sonnet 4.6 em 20260604_13h06:
   systemd.services.librechat = {
@@ -167,11 +174,11 @@
   # ==============================================================
   # NEKKHAMMA AUTOMÁTICO (Desapego de Gerações Antigas) =)adicionado por Khemā em 20260527_16h44(=
   # ==============================================================
-  # nix.gc = {
-  #  automatic = true;
-  #  dates = "weekly";
-  #  options = "--delete-older-than 14d";
-  #};
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
 
   # Arquivo praticamente original abaixo dessa linha (acima são as melhorias {personalização} feitas à partir de 20260527_16h44):
 
