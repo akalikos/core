@@ -169,6 +169,11 @@
     "vm.dirty_ratio" = 50;
     "vm.dirty_expire_centisecs" = 6000;
     "vm.dirty_writeback_centisecs" = 1000;
+
+    # Olhos para a Forja (inotify) — adicionado por Vijjā em 20260611
+    # Necessário para o VSCodium observar pastas grandes sem reclamar
+    "fs.inotify.max_user_watches" = 524288;
+    "fs.inotify.max_user_instances" = 1024;
   };
 
   # ==============================================================
