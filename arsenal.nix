@@ -28,7 +28,8 @@
     kotatogram-desktop
     git
     age # Criptografia moderna para segredos do pipeline
-    pass # Cofre de senhas Unix-style
+    (pass.withExtensions (exts: [exts.pass-otp])) # Cofre de senhas Unix-style + TOTP (2FA GitHub)
+    gnupg # Motor GPG — cofre pessoal pass/QtPass (Vijjā 20260611)
     codex # OpenAI Codex CLI (consome créditos Codex workspace)
     # Playwright com libs NixOS para notebooklm-py
     playwright-driver.browsers

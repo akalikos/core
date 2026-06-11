@@ -301,10 +301,10 @@
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = false; # SSH continua com as chaves id_ed25519/id_matikamata de sempre
+  };
 
   # List services that you want to enable:
 
