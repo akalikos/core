@@ -162,7 +162,7 @@
     ];
     environment = {
       OPENAI_API_BASE_URL = "http://host.containers.internal:4000/v1";
-      WEBUI_AUTH = "False";
+      WEBUI_AUTH = "True";
 
       GOOGLE_APPLICATION_CREDENTIALS = "/app/gcp-key.json";
       VERTEX_PROJECT = "dhammadana--grin-497813-b7";
