@@ -26,6 +26,7 @@
     telegram-desktop
     ayugram-desktop
     kotatogram-desktop
+    tesseract # OCR local — Fase 1.5 da Missão Pentagrama (Para incorporação do Telegram na Orchestra)
     git
     age # Criptografia moderna para segredos do pipeline
     (pass.withExtensions (exts: [exts.pass-otp])) # Cofre de senhas Unix-style + TOTP (2FA GitHub)
@@ -44,6 +45,7 @@
     mpv # O motor — minimalista, zero telemetria
     haruna # Interface KDE para o mpv (integra com Plasma)
     vlc # alternativa canivete-suíço, se preferir
+    lm_sensors
 
     # Gerenciador de chaves GPG do KDE para o KMail (NixOS 25.11)
     kdePackages.kleopatra

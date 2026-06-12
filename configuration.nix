@@ -148,6 +148,35 @@
   };
 
   # ==============================================================
+  # FREIO TÉRMICO DA GPU (cap de potência amdgpu) =)adicionado por Vijjā em 20260612_09h05(=
+  # Diagnóstico 20260612: Radeon a 108°C (crit 110°C) com PPT 81W e ventoinha
+  # única já no máximo (2700rpm). Cap de 70W derrubou edge p/ 95°C (validado
+  # ao vivo). Este serviço torna o cap permanente — o echo manual evapora no boot.
+  # Para REVERTER: comentar o bloco e rebuild (ou echo 110000000 no power1_cap).
+  # ==============================================================
+  systemd.services.amdgpu-power-cap = {
+    description = "Cap de potência da GPU AMD (70W) — proteção térmica iMac 15,1";
+    wantedBy = ["multi-user.target"]; # roda em todo boot normal
+    after = ["multi-user.target"]; # tarde o bastante p/ o sysfs da GPU existir
+    serviceConfig = {
+      Type = "oneshot"; # roda uma vez e termina (não é daemon)
+      ExecStart = pkgs.writeShellScript "amdgpu-cap" ''
+        for f in /sys/class/drm/card*/device/hwmon/hwmon*/power1_cap; do
+          echo 70000000 > "$f"   # 70W em microwatts
+        done
+      '';
+    };
+  };
+
+  # ==============================================================
+  # TERMÔMETROS DA NAVE (sensores p/ lm_sensors) =)adicionado por Vijjā em 20260612_08h15(=
+  # coretemp = temperatura por núcleo do i7 · applesmc = chip SMC da Apple
+  # (ventoinha, temperatura ambiente/SSD). Sem estes módulos o comando
+  # `sensors` fica cego — par do lm_sensors que entrou no arsenal.nix.
+  # ==============================================================
+  boot.kernelModules = ["coretemp" "applesmc"];
+
+  # ==============================================================
   # DOMANDO O TECLADO DA APPLE (Módulo hid_apple)
   # ==============================================================
   boot.extraModprobeConfig = ''
@@ -165,8 +194,15 @@
   # OTIMIZAÇÃO MCBOXGYVER (Aliviando o HDD Mecânico) =)adicionado por Khemā em 20260527_16h44(=
   # ==============================================================
   boot.kernel.sysctl = {
-    "vm.dirty_background_ratio" = 20;
-    "vm.dirty_ratio" = 50;
+    # Ajustado por Vijjā em 20260612_08h15: os valores antigos (20/50) eram
+    # para aliviar HDD mecânico, mas com 32Gi de RAM permitiam até ~16Gi de
+    # páginas sujas — durante pressão de memória isso vira tempestade de I/O
+    # e contribui para as travadas diagnosticadas hoje. A Nave hoje só tem SSDs.
+    # Valores antigos preservados (convenção: nunca apagar):
+    # "vm.dirty_background_ratio" = 20;
+    # "vm.dirty_ratio" = 50;
+    "vm.dirty_background_ratio" = 5; # começa a escrever em background com ~1,6Gi sujos
+    "vm.dirty_ratio" = 15; # trava escrita síncrona só acima de ~4,8Gi sujos
     "vm.dirty_expire_centisecs" = 6000;
     "vm.dirty_writeback_centisecs" = 1000;
 
@@ -175,6 +211,21 @@
     "fs.inotify.max_user_watches" = 524288;
     "fs.inotify.max_user_instances" = 1024;
   };
+
+  # ==============================================================
+  # RESPIRO DA NAVE (zram — swap comprimido em RAM) =)adicionado por Vijjā em 20260612_08h15(=
+  # Diagnóstico de 20260612: PSI de memória full=18% (travadas de reclaim),
+  # 24Gi/31Gi usados e swap=0B. O zram cria um "pulmão" comprimido:
+  # páginas frias são comprimidas (~3:1 com zstd) em vez de travarem o sistema.
+  # ==============================================================
+  zramSwap = {
+    enable = true; # liga o swap em zram (não usa disco — só RAM comprimida)
+    algorithm = "zstd"; # melhor razão de compressão para texto/browser
+    memoryPercent = 50; # até 50% da RAM como zram (~16Gi virtuais a custo de ~5Gi reais)
+  };
+  # swappiness alto é CORRETO com zram (mover página fria p/ zram custa quase nada;
+  # com swap em disco seria ruim, em RAM comprimida é ganho):
+  boot.kernel.sysctl."vm.swappiness" = 150;
 
   # ==============================================================
   # NEKKHAMMA AUTOMÁTICO (Desapego de Gerações Antigas) =)adicionado por Khemā em 20260527_16h44(=
